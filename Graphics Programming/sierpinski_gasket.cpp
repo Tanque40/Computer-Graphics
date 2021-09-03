@@ -30,7 +30,7 @@ void display()
     glBegin(GL_POINTS);
 
     //** Compute and plot 5000 new points
-    for (k = 0; k < 50000000; k++)
+    for (k = 0; k < 5000; k++)
     {
         //** Pick a random vertex from 0,1,2
         j = rand() % 3;

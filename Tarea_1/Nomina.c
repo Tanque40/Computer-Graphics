@@ -34,8 +34,8 @@ struct empleado {
 
 EMP *crear_empleado();
 DIR nueva_direccion();
-int insertar_empleado(EMP **lista_empleados);
-int borrar_empleado(int id_empleado_to_delete, EMP **lista_empleados);
+int insertar_empleado(EMP *lista_empleados);
+int borrar_empleado(int id_empleado_to_delete, EMP *lista_empleados);
 int num_empleados(EMP *lista_empleados);
 void mostrar_empleado(int id_empleado_to_show, EMP *lista_empleados);
 void mostrar_direccion(EMP *empleado);
@@ -97,7 +97,7 @@ int main() {
     return 0;
 }
 
-int insertar_empleado(EMP **lista_empleados) {
+int insertar_empleado(EMP *lista_empleados) {
     EMP *current_employee, *nuevo_empleado;
 
     current_employee = lista_empleados;
@@ -162,14 +162,14 @@ EMP *crear_empleado() {
     printf("Ingresa el salario del empleado: $");
     scanf("%f", &nuevo_empleado.salario);
 
-    nuevo_empleado.siguiente_empleado == NULL;
+    nuevo_empleado.siguiente_empleado = NULL;
 
     apt_nuevo_empleado = &nuevo_empleado;
 
     return apt_nuevo_empleado;
 }
 
-int borrar_empleado(int id_empleado_to_delete, EMP **lista_empleados) {
+int borrar_empleado(int id_empleado_to_delete, EMP *lista_empleados) {
     EMP *current_employee;
 
     current_employee = lista_empleados;

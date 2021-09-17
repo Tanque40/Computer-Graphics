@@ -1,11 +1,12 @@
 #include <GL/freeglut.h>
 
-void myinit()
-{
+// for compile
+// gcc sierpinski_gasket.cpp -o main -lopengl32 -lglew32 -lfreeglut -lglu32
 
+void myinit() {
     //** attributes
-    glClearColor(1.0, 1.0, 1.0, 1.0); //*? White baclground
-    glColor3f(1.0, 0.0, 0.0);         //*? Draw in red
+    glClearColor(1.0, 1.0, 1.0, 1.0);  //*? White baclground
+    glColor3f(1.0, 0.0, 0.0);          //*? Draw in red
 
     //** setup viewing
     //** 50.0 x 50.0 camera coordinate window with origin lower left
@@ -15,8 +16,7 @@ void myinit()
     glMatrixMode(GL_MODELVIEW);
 }
 
-void display()
-{
+void display() {
     //** An arbitrary triangle in the plane z
     GLfloat vertices[3][2] = {{0.0, 0.0}, {25.0, 50.0}, {50.0, 0.0}};
 
@@ -26,12 +26,11 @@ void display()
     //** Set to any desired point inside the triangle
     GLfloat p[2] = {7.5, 5.0};
 
-    glClear(GL_COLOR_BUFFER_BIT); //** Clear the window
+    glClear(GL_COLOR_BUFFER_BIT);  //** Clear the window
     glBegin(GL_POINTS);
 
     //** Compute and plot 5000 new points
-    for (k = 0; k < 5000; k++)
-    {
+    for (k = 0; k < 5000; k++) {
         //** Pick a random vertex from 0,1,2
         j = rand() % 3;
 
@@ -48,21 +47,19 @@ void display()
     glFlush();
 }
 
-int main(int argc, char **argv)
-{
-
+int main(int argc, char **argv) {
     //Todo Standar GLUT initialization
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //*? Default, not needed
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);  //*? Default, not needed
 
-    glutInitWindowSize(500, 500);          //*? 500 x 500 pixel window
-    glutInitWindowPosition(0, 0);          //*? place window top left on display
-    glutCreateWindow("Sierpinski Gasket"); //*? Window title
-    glutDisplayFunc(display);              //*? display callback invoked when window opened
+    glutInitWindowSize(500, 500);           //*? 500 x 500 pixel window
+    glutInitWindowPosition(0, 0);           //*? place window top left on display
+    glutCreateWindow("Sierpinski Gasket");  //*? Window title
+    glutDisplayFunc(display);               //*? display callback invoked when window opened
 
-    myinit(); //*? set attributes
+    myinit();  //*? set attributes
 
-    glutMainLoop(); //*? enter event loop
+    glutMainLoop();  //*? enter event loop
 
     return 0;
 }

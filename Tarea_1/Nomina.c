@@ -8,7 +8,6 @@
 //  | |_/ /| |   | |_| || | | || (_) | \ \_/ /| || |_ | |_ |  __/
 //  \____/ |_|    \__,_||_| |_| \___/   \___/ |_| \__| \__| \___|
 //
-//
 
 typedef struct direccion DIR;
 typedef struct empleado EMP;

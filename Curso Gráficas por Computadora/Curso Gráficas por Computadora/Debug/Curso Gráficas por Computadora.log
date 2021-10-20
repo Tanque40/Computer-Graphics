@@ -1,0 +1,9 @@
+﻿  Main.cpp
+Main.obj : error LNK2019: unresolved external symbol _glfwInit referenced in function _main
+Main.obj : error LNK2019: unresolved external symbol _glfwTerminate referenced in function _main
+Main.obj : error LNK2019: unresolved external symbol _glfwCreateWindow referenced in function _main
+Main.obj : error LNK2019: unresolved external symbol _glfwWindowShouldClose referenced in function _main
+Main.obj : error LNK2019: unresolved external symbol _glfwSetWindowShouldClose referenced in function "void __cdecl processInput(struct GLFWwindow *)" (?processInput@@YAXPAUGLFWwindow@@@Z)
+Main.obj : error LNK2019: unresolved external symbol _glfwWaitEvents referenced in function _main
+Main.obj : error LNK2019: unresolved external symbol _glfwGetKey referenced in function "void __cdecl processInput(struct GLFWwindow *)" (?processInput@@YAXPAUGLFWwindow@@@Z)
+C:\Users\BRUNO\Documents\Compartido\cursos\Computer-Graphics\Curso Gráficas por Computadora\Debug\Curso Gráficas por Computadora.exe : fatal error LNK1120: 7 unresolved externals

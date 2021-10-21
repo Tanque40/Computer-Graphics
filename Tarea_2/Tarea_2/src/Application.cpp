@@ -54,16 +54,7 @@ int main( void ){
 
         Penrose p( 6, Coordinate( 0, 0 ), 36, 1.0 );
 
-        p.execute();
-
-        
-        /*float *vertices = p.GetVertices();
-        int numVertices = p.GetNumTriangles() * 9;*/
-        /*for( int i = 0; i < numVertices; i += 3 ){
-            std::cout << "Coordinate:" << std::endl;
-            std::cout << "x: " << vertices[ i ] << " | y: " << vertices[ i + 1 ] << " | z: " << vertices[ i + 2 ] << std::endl;
-        }*/
-        
+        p.execute();      
 
         float *vertices = p.GetVerticesWithColors();
         int numVertices = p.GetNumTriangles() * 18;

@@ -1,5 +1,5 @@
-.vs/
-.vscode/
+# Some personal files
+reference.*
 
 # gitignore for C++
 

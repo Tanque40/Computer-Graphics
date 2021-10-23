@@ -145,7 +145,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="res\shaders\basic.shader" />
     <None Include="res\shaders\colorWithBuffer.shader" />
   </ItemGroup>
   <ItemGroup>

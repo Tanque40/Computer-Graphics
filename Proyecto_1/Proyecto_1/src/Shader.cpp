@@ -14,7 +14,7 @@ Shader::Shader( const std::string &filepath )
 {
     
     ShaderProgramSource source = ParseShader( filepath);
-    m_RenderID = CreateShader( source.VertexSource, source.FragmentSource );
+    m_RenderID = CreateShader( source.VertexSource, source.FragmentSource, source.GeometrySource );
 }
 
 Shader::~Shader(){
@@ -35,23 +35,37 @@ void Shader::UnBind() const{
 
 }
 
-void Shader::Setuniforms4f( const std::string &name, float v0, float v1, float v2, float v3 ){
+void Shader::SetUniforms4f( const std::string &name, float v0, float v1, float v2, float v3 ){
     GLCall( glUniform4f(GetUniformLocation(name) , v0, v1, v2, v3 ) );
 }
 
-void Shader::SetuniformsMat4( const std::string &name, glm::mat4 uniform_1 ){
-    GLCall( glUniformMatrix4fv( GetUniformLocation( name ), 1, GL_FALSE, glm::value_ptr( uniform_1 ) ) );
+void Shader::SetUniformsMat4( const std::string &name, glm::mat4 uniform_1, int transpose ){
+    if( transpose ){
+
+        GLCall( glUniformMatrix4fv( GetUniformLocation( name ), 1, GL_TRUE, glm::value_ptr( uniform_1 ) ) );
+
+    } else {
+
+        GLCall( glUniformMatrix4fv( GetUniformLocation( name ), 1, GL_FALSE, glm::value_ptr( uniform_1 ) ) );
+    
+    }
+}
+
+void Shader::SetUniformFloat( const std::string &name, float value ){
+
+    GLCall( glUniform1f( GetUniformLocation( name ), value ) );
+
 }
 
 ShaderProgramSource Shader::ParseShader( const std::string &filepath ){
     std::fstream stream( filepath );
 
     enum class ShaderType{
-        NONE = -1, VERTEX = 0, FRAGMENT = 1
+        NONE = -1, VERTEX = 0, FRAGMENT = 1, GEOMETRY = 2,
     };
 
     std::string line;
-    std::stringstream ss[ 2 ];
+    std::stringstream ss[ 3 ];
     ShaderType type = ShaderType::NONE;
 
     while( getline( stream, line ) ){
@@ -66,6 +80,10 @@ ShaderProgramSource Shader::ParseShader( const std::string &filepath ){
 
                 type = ShaderType::FRAGMENT;
 
+            } else if( line.find( "geometry" ) != std::string::npos ){
+
+                type = ShaderType::GEOMETRY;
+
             }
 
         } else{
@@ -76,7 +94,7 @@ ShaderProgramSource Shader::ParseShader( const std::string &filepath ){
 
     }
 
-    return { ss[ 0 ].str(), ss[ 1 ].str() };
+    return { ss[ 0 ].str(), ss[ 1 ].str(), ss[2].str() };
 }
 
 unsigned int Shader::CompileShader( unsigned int type, const std::string &source ){
@@ -103,18 +121,21 @@ unsigned int Shader::CompileShader( unsigned int type, const std::string &source
     return id;
 }
 
-unsigned int Shader::CreateShader( const std::string &vertexShader, const std::string &fragmentShader ){
+unsigned int Shader::CreateShader( const std::string &vertexShader, const std::string &fragmentShader, const std::string &geometryShader ){
     unsigned int program = glCreateProgram();
     unsigned int vs = CompileShader( GL_VERTEX_SHADER, vertexShader );
     unsigned int fs = CompileShader( GL_FRAGMENT_SHADER, fragmentShader );
+    unsigned int gs = CompileShader( GL_GEOMETRY_SHADER, geometryShader );
 
     GLCall( glAttachShader( program, vs ) );
+    GLCall( glAttachShader( program, gs ) );
     GLCall( glAttachShader( program, fs ) );
     GLCall( glLinkProgram( program ) );
     GLCall( glValidateProgram( program ) );
 
     GLCall( glDeleteShader( vs ) );
     GLCall( glDeleteShader( fs ) );
+    GLCall( glDeleteShader( gs ) );
 
     return program;
 }

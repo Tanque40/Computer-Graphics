@@ -9,6 +9,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <time.h>
 
 #include "Renderer.h"
 
@@ -56,20 +57,13 @@ int main( void ){
     std::cout << glGetString( GL_VERSION ) << std::endl;
 
     {
-
-        Penrose p( 0, Coordinate( 0.5, -0.5 ), 36, 0.05);
+        float tillingDiameter = 0.3;
+        Penrose p( 6, Coordinate( 0.0, -0.0 ), 36, tillingDiameter);
 
         p.execute();      
 
         float *vertices = p.GetVerticesWithColors();
         int numVertices = p.GetNumTriangles() * 18;
-        /*for( int i = 0; i < numVertices; i += 6 ){
-            std::cout << "Coordinate:" << std::endl;
-            std::cout << "x: " << vertices[ i ] << " | y: " << vertices[ i + 1 ] << " | z: " << vertices[ i + 2 ] << std::endl;
-
-            std::cout << "RGB:" << std::endl;
-            std::cout << "R: " << vertices[ i + 3 ] << " | G: " << vertices[ i + 4 ] << " | B: " << vertices[ i + 5 ] << std::endl;
-        }*/
 
         VertexArray va;
 
@@ -94,14 +88,18 @@ int main( void ){
         glPolygonMode( GL_FRONT, GL_FILL );
         shader.Bind();
 
-        float x = -0.03f;
-        float y = 0.06f;
-        float incremento = 0.001f;
+        time_t seconds;
+        seconds = time( NULL );
+        int passed_seconds;
+        float translation = 0.01;
+        float r = 0.001;
+        float scale = 1.0;
         /* Loop until the user closes the window */
         while( !glfwWindowShouldClose( window ) ){
             /* Render here */
             renderer.Clear();
 
+            
             processInput( window );
             
             vb.Bind();
@@ -109,22 +107,104 @@ int main( void ){
             GLCall( glDrawArrays( GL_TRIANGLES, 0, numVertices ) );
             
             glm::mat4 trans = glm::mat4( 1.0f );
-            trans = glm::scale( trans, glm::vec3( 1.0f, 1.0f, 0.0f ));
+            
+            passed_seconds = time( NULL ) - seconds;
+            //std::cout << "time" << passed_seconds % 20 << std::endl;
 
-            trans = glm::translate( trans, glm::vec3( x, 0.0f, 0.0f ) );
+            if( passed_seconds % 40 < 5  ){
 
-            shader.SetuniformsMat4( "transform", trans );
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::translate( trans, glm::vec3( -1.0, 1.0, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime(), glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );    
+
+            } else if( passed_seconds % 40 < 10 ){
+
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::translate( trans, glm::vec3( -1.0 + translation, 1.0 - translation, 0.0f ) );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime(), glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );
+                if( translation <= 1.0 ){
+                    translation += 0.004;
+                }
+
+                if( scale <= 3.3 ){
+                    scale += 0.0075;
+                }
+
+            } else if( passed_seconds % 40 < 15 ){
+
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime() * r, glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );
+                if( r <= 3.0 ){
+                    r += 0.01;
+                }
+
+                if( scale > 0.1 ){
+                    scale -= 0.01;
+                }
+
+            } else if( passed_seconds % 40 < 20 ){
+
+                shader.SetUniformFloat( "time", glfwGetTime() );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                shader.SetUniformsMat4( "transform", trans, 0 );
+
+                if( scale < 2 ){
+                    scale += 0.1;
+                }
+
+            } else if( passed_seconds % 40 < 25 ){
+
+                shader.SetUniformFloat( "time", glfwGetTime() );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                shader.SetUniformsMat4( "transform", trans, 0 );
+
+                if( scale > 0.1 ){
+                    scale -= 0.01;
+                }
+
+            } else if( passed_seconds % 40 < 30 ){
+
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime() * r, glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );
+                if( r > 1.0 ){
+                    r -= 0.01;
+                }
+
+                if( scale < 3.3 ){
+                    scale += 0.01;
+                }
+
+            } else if( passed_seconds % 40 < 35 ){
+
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::translate( trans, glm::vec3( -1.0 + translation, 1.0 - translation, 0.0f ) );
+                trans = glm::scale( trans, glm::vec3( scale, scale, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime(), glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );
+                if( translation > 0.0 ){
+                    translation -= 0.004;
+                }
+
+                if( scale > 1.0 ){
+                    scale -= 0.0075;
+                }
+
+            } else if( passed_seconds % 40 < 40 ){
+
+                shader.SetUniformFloat( "time", 0 );
+                trans = glm::translate( trans, glm::vec3( -1.0, 1.0, 0.0f ) );
+                trans = glm::rotate( trans, -1 * ( float ) glfwGetTime(), glm::vec3( 0.0, 0.0, 1.0 ) );
+                shader.SetUniformsMat4( "transform", trans, 1 );
+            
+            }
            
-
-            if( x >= 1.0f || x <= -1.0f ){
-                incremento *= -1;
-            }
-            if( y >= 1.0f || y <= -1.0f ){
-                incremento *= -1;
-            }
-            x += incremento;
-            y -= incremento;
-            //std::cout << "x: " << x << " | y: " << y << std::endl;
 
             /* Swap front and back buffers */
             GLCall( glfwSwapBuffers( window ) );

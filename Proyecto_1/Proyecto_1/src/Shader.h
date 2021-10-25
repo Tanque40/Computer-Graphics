@@ -9,6 +9,7 @@
 struct ShaderProgramSource{
 	std::string VertexSource;
 	std::string FragmentSource;
+	std::string GeometrySource;
 };
 
 class Shader{
@@ -24,12 +25,13 @@ public:
 	void UnBind() const;
 
 	// Set Uniforms
-	void Setuniforms4f( const std::string &name, float v0, float v1, float v2, float v3 );
-	void SetuniformsMat4( const std::string &name, glm::mat4 uniform_1);
+	void SetUniforms4f( const std::string &name, float v0, float v1, float v2, float v3 );
+	void SetUniformsMat4( const std::string &name, glm::mat4 uniform_1, int transpose);
+	void SetUniformFloat( const std::string &name, float value );
 
 private:
 	ShaderProgramSource ParseShader( const std::string &filepath );
 	unsigned int CompileShader( unsigned int type, const std::string &source );
-	unsigned int CreateShader( const std::string &vertexShader, const std::string &fragmentShader );
+	unsigned int CreateShader( const std::string &vertexShader, const std::string &fragmentShader, const std::string &geometryShader );
 	int GetUniformLocation( const std::string &name );
 };

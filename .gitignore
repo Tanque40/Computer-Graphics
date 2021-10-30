@@ -1,7 +1,7 @@
 # Some personal files
 reference.*
 *.zip
-
+doc/
 # gitignore for C++
 
 # Created by https://www.toptal.com/developers/gitignore/api/visualstudio,c++

@@ -35,13 +35,17 @@ Las funciones o procedimientos que deben escribirse son:
 
 ## Análisis
 
+Generaremos una clase Nomina que nos permitirar el manejo de los los Empleados, la obtención de los datos y la inserción de los mismos. Esto apoyado de las funciones que permitan el manejo de la lista enlazada de los empleados. Y un `To_String()` que devuelva los datos de todos los empleados de la empresa.
+
+La clase y las structuras irán dentro del header `Nomina.h` y la declaración de las funciones estará dentro de `Nomina.cpp`. 
+
 Ocuparemos la librería `<string.h>` para apoyarnos en el manejo de Strings en cada uno de los casos que se ocupe.
 
-Para facilitarnos el desarrollo de la tarea necesitamos una structura Dirección con todo lo que nos pide. 
+Para facilitarnos el desarrollo de la tarea necesitamos una structura Dirección con todo lo que nos pide. Indicaremos un contructor que asigne los valores necesarios y un `To_String()` que devuelva todos los valores de manera más cómoda. 
 
 ~~~ C++
 
-struct Direccion{
+struct Direccion {
 
     std::string Calle;
     int NumeroExterno;
@@ -49,7 +53,78 @@ struct Direccion{
     std::string Ciudad;
     std::string Pais;
 
+    /**
+     * Constructor
+     */ 
+    Direccion(std::string Calle, int NumeroExterno, int CodigoPostal, std::string Ciudad, std::string Pais);
+
+    /**
+     * @return Todo el contenido de la estructura de Direccion.
+     */
+    std::string To_String();
+
 }
 
 ~~~
 
+También necesitamos la estructura empleado, la cual contendrá los datos solicitados, un constructor para aasignar todos los datos, un `To_String()` para mostrar todo el contenido de la estructura y finalmente un par de funciones para la inserción de los nuevos Empleados y el manejo de la lista ligada con los punteros.
+
+~~~ C++
+
+struct Empleado {
+
+    std::string Nombre;
+    std::string Apellidos;
+    int Numero_Identificacion;
+    Direccion Direccion_Empleado; 
+    float Salario;
+    // (M) Masculino, (F) Femenino, (O) Otro.
+    char Genero;
+    // (C) Casado, (U) Unión Libre, (S) Soltero, (D) Divorciado, (V) Viudo, (O) Otro.
+    char Estado_Civil;
+    int Numero_Hijos;
+    Empleado *Siguiente_Empleado = NULL;    
+
+    /**
+     * Constructor
+     */
+    Empelado(std::string Nombre, std::string Apellidos, int Numero_Identificacion, Direccion Direccion_Empleado, float Salario, char Genero, char Estado_Civil, int Numero_Hijos);
+
+    /**
+     * Push empleado
+     * 
+     * Inserta el siguiente empeado.
+     * Si ya hay un valor recorre las posisiones.
+     * 
+     * @param Apuntador con el nuevo empleado
+     * @return void 
+     */
+    void Push(Empleado *Nuevo_Empleado);
+
+    /**
+     * Delete_Next empleado
+     * 
+     * Borra el empleado siguiente.
+     * Si hay más empleados los recorre a la posición de Siguiente_Empelado
+     * 
+     * @return 1 si el empleado fue borrado correctamente
+     * @return 0 si hubo error al borrar empleado
+     */
+    int Delete_Next();
+
+}
+
+~~~
+
+Finalmente declaramos la clase Nomina con las fuciones para crear empleado, insertar empleados, borrar empleado, numero de empleados, mostrar un empleado y el `To_String()` que mostrará todos los empleados.
+
+~~~ C++
+
+class Nomina{
+
+    int NumEmpleados;
+    Empleado ListaEmpleados;
+    
+}
+
+~~~

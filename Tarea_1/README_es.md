@@ -35,7 +35,7 @@ Las funciones o procedimientos que deben escribirse son:
 
 ## Análisis
 
-Generaremos una clase Nomina que nos permitirar el manejo de los los Empleados, la obtención de los datos y la inserción de los mismos. Esto apoyado de las funciones que permitan el manejo de la lista enlazada de los empleados. Y un `To_String()` que devuelva los datos de todos los empleados de la empresa.
+Generaremos una clase Nomina que nos permitirar el manejo de los los Empleados, la obtención de los datos y la inserción de los mismos. Esto apoyado de las funciones que permitan el manejo de la lista enlazada de los empleados. Y un `To_String()` que devuelva los datos de todos los empleados de la empresa. En este caso como creamos la clase nomina no es necesario que las funciones reciban como parámetro el apuntador de los empleados.
 
 La clase y las structuras irán dentro del header `Nomina.h` y la declaración de las funciones estará dentro de `Nomina.cpp`. 
 
@@ -123,8 +123,84 @@ Finalmente declaramos la clase Nomina con las fuciones para crear empleado, inse
 class Nomina{
 
     int NumEmpleados;
-    Empleado ListaEmpleados;
+    Empleado ListaEmpleados = NULL;
+
+public:
     
+    /**
+     * Contructor
+     *
+     * Inicializa el numero de empleados en 0.
+     * La lista de empleados se modificará hasta la inserción de un empleado. 
+     */
+    Nomina();
+    
+    /**
+     * Destructor
+     * Vacía los datos de la lista para liberar espacio.
+     */
+    ~Nomina();
+
+    /**
+     * crear_empleado 
+     *
+     * Pide los datos necesarios para crear un empleado.
+     *
+     * @return Un apuntador con los datos del nueco empleado
+     */
+    Empleado *crear_empleado();
+
+    /**
+     * insertar_empleado
+     *
+     * Llama a la funcion crear_empleado para tener un nuevo empleado,
+     * lo inserta en orden dependiendo de la clave del empleado.
+     *
+     * @return 1 si el empleado fue añadido correctamente.
+     * @return 0 si hubo un error al insertar el empleado.
+     */
+    int insertar_empelado();
+
+    /**
+     * borrar_empleado
+     * 
+     * Busca el empleado anterior al que queremos borrar, identificado con el Id_Empleado,
+     * aplica la función Delete_Next() de la estructura empleado.
+     *
+     * @param[ in ] Id_Empleado el Identificador del empleado a borrar.
+     *
+     * @return 1 si el empleado fue borrado correctamente.
+     * @return 0 si el empleado no se encontró o hubo un error al borrar.  
+     */
+    int borrar_empleado(int Id_Empleado);
+    
+    /**
+     * num_empleados
+     *
+     * @return numero de empleados en la nómina.
+     */
+    int num_empleados();
+
+    /**
+     * mostrar_empleado
+     *
+     * Busca el empelado por su clave y muestra sus datos
+     * 
+     * @param[ in ] Id_Empleado el empleado a buscar
+     *
+     * @return El To_String() del empleado.
+     */
+    std::string mostrar_empleado(int Id_Empleado);
+
+    /**
+     * To_String();
+     * 
+     * @return Un string con los strings de todos los empleados.
+     */
+    std::string To_String();
+
 }
 
 ~~~
+
+Finalmente nuestro main del programa entrará en un bucle en el que se mostarará un menú con las opciones disponibles para hacer con la nómina. Se pedirán los datos necesarios en cada caso y si se mete la opción 0 o cualquier diferente a las opciones del menú el programa acabará.

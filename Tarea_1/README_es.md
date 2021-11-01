@@ -112,6 +112,13 @@ struct Empleado {
      */
     int Delete_Next();
 
+    /**
+     * To_String()
+     * 
+     * @return String todos los datos del empleado.
+     */
+    std::string To_String();
+
 }
 
 ~~~
@@ -198,6 +205,17 @@ public:
      * @return Un string con los strings de todos los empleados.
      */
     std::string To_String();
+
+private:
+
+    /**
+     * Create_Direccion()
+     *
+     * Pide los datos necesarios para crear un apuntador de Direccion
+     * 
+     * @return Apuntador de la estructura dirección
+     */
+    Direccion *Create_Direccion();
 
 }
 

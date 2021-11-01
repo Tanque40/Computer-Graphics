@@ -26,11 +26,11 @@ struct Direccion{
      */
     std::string To_String(){
         return (
-            "\nCalle: " + Calle + "\n" + 
-            "Numero Externo: " + std::to_string( NumeroExterno ) + " \n" +
-            "Codigo Postal: " + std::to_string( CodigoPostal ) + " \n" +
-            "Ciudad: " + Ciudad + " \n" +
-            "Pais: " + Pais + " \n"
+            "\n\tCalle: " + Calle + "\n" + 
+            "\tNumero Externo: " + std::to_string( NumeroExterno ) + " \n" +
+            "\tCodigo Postal: " + std::to_string( CodigoPostal ) + " \n" +
+            "\tCiudad: " + Ciudad + " \n" +
+            "\tPais: " + Pais + " \n"
             );
     }
 
@@ -99,7 +99,46 @@ struct Empleado{
      * @return 1 si el empleado fue borrado correctamente
      * @return 0 si hubo error al borrar empleado
      */
-    int Delete_Next();
+    int Delete_Next(){
+
+        if( Siguiente_Empleado->Siguiente_Empleado == NULL ){
+
+            Siguiente_Empleado = NULL;
+            return 1;
+
+        } else{
+
+            Empleado *temp = Siguiente_Empleado->Siguiente_Empleado;
+
+            Siguiente_Empleado = temp;
+
+            return 1;
+
+        }
+        
+        return 0;
+
+    }
+
+    /**
+     * To_String()
+     *
+     * @return String todos los datos del empleado.
+     */
+    std::string To_String(){
+
+        std::string res = "";
+
+        res += "Numero de identificación: " + std::to_string( Numero_Identificacion );
+        res += "Nombre: " + Nombre;
+        res += "Apellidos: " + Apellidos;
+        res += "Salario: " + std::to_string( Salario );
+        res += "Genero: " + Genero;
+        res += "Estado Civil: " + Estado_Civil;
+        res += "Numero de Hijos: " + std::to_string( Numero_Hijos );
+        res += "Direccion: " + Direccion_Empleado->To_String();
+
+    }
 
 };
 
@@ -182,5 +221,17 @@ public:
      * @return Un string con los strings de todos los empleados.
      */
     std::string To_String();
+
+private:
+
+    /**
+     * Create_Direccion()
+     *
+     * Pide los datos necesarios para crear un apuntador de Direccion
+     * 
+     * @return Apuntador de la estructura dirección
+     */
+    Direccion *Create_Direccion();
+
 
 };

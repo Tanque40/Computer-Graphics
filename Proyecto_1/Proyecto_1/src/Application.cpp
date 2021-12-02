@@ -58,7 +58,7 @@ int main( void ){
 
     {
         float tillingDiameter = 0.3;
-        Penrose p( 8, Coordinate( 0.0, -0.0 ), 36, tillingDiameter);
+        Penrose p( 6, Coordinate( 0.0, -0.0 ), 36, tillingDiameter);
 
         p.execute();      
 

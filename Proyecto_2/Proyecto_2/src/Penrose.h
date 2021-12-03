@@ -2,38 +2,52 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include <ccomplex>
 #define PHI (1 + sqrt(5)) / 2
 
+#include <iostream>
 #include <vector>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 struct Coordinate{
 	float x;
 	float y;
+	float z;
 
 	Coordinate(){
 		x = 0;
 		y = 0;
+		z = 0;
 	}
 
 	Coordinate( float _x, float _y ){
 		x = _x;
 		y = _y;
+		z = 0;
 	}
+
+	Coordinate( float _x, float _y , float _z){
+		x = _x;
+		y = _y;
+		z = _z;
+	}
+
 
 	// @return the vectorial sum of two coordinates
 	static Coordinate sum(Coordinate a, Coordinate b){
-		return Coordinate( a.x + b.x, a.y + b.y );
+		return Coordinate( a.x + b.x, a.y + b.y, a.z + b.z );
 	}
 
 	// @return the vectorial diference of two coordinates
 	static Coordinate diff( Coordinate a, Coordinate b ){
-		return Coordinate( a.x - b.x, a.y - b.y );
+		return Coordinate( a.x - b.x, a.y - b.y, a.z - b.z );
 	}
 
 	// @return the divition of both values in coordinate by b
 	static Coordinate divide( Coordinate a, float b ){ 
-		return Coordinate( a.x / b, a.y / b );
+		return Coordinate( a.x / b, a.y / b, a.z / b );
 	}
 
 	// @return the rotation point p around some origin point
@@ -59,9 +73,38 @@ struct Coordinate{
 		return Coordinate( px, py );
 	}
 
+	// @return the rotation point p around some origin point r3 we can select the axis (X, Y, Z, XY, XZ, YZ)
+	static Coordinate RotatePoint3D( Coordinate origin, float angle, Coordinate p, std::string axis  ){
+		float rad = angle * M_PI / 180;
+		glm::vec4 rotated_point = glm::vec4( 0.0f, 0.0f, 0.0f, 0.0f );
+		glm::vec4 point_to_rotate = glm::vec4(p.x - origin.x, p.y - origin.y, p.z - origin.z, 0.0f );
+		glm::vec3 axis_to_rotate;
+
+		
+		if( axis == "X" ){
+			axis_to_rotate = glm::vec3( 1, 0, 0 );
+		} else if( axis == "Y" ){
+			axis_to_rotate = glm::vec3( 0, 1, 0 );
+		} else if( axis == "Z" ){
+			axis_to_rotate = glm::vec3( 0, 0, 1 );
+		} else if( axis == "XY" ){
+			axis_to_rotate = glm::vec3( 1, 1, 0 );
+		} else if( axis == "XZ" ){
+			axis_to_rotate = glm::vec3( 1, 0, 1 );
+		} else{
+			axis_to_rotate = glm::vec3( 0, 1, 1 );
+		}
+
+		glm::mat4 identity = glm::mat4( 1.0f );
+
+		rotated_point = point_to_rotate * glm::rotate( identity, rad, axis_to_rotate );
+
+		return Coordinate( rotated_point.x, rotated_point.y, rotated_point.z );
+	}
+
 	// @return distance between to coordinates
 	static float dist( Coordinate a, Coordinate b ){
-		return sqrt( pow( ( a.x - b.x ), 2 ) + pow( ( a.y - b.x ), 2 ) );
+		return sqrt( pow( ( a.x - b.x ), 2 ) + pow( ( a.y - b.y ), 2 ) + pow( ( a.z - b.z ), 2 ) );
 	}
 };
 
@@ -90,9 +133,9 @@ struct Triangle{
 
 	float *getTriangleCoordinates(){
 		float coordinates[] = {
-			a.x, a.y, 0,
-			b.x, b.y, 0,
-			c.x, c.y, 0,
+			a.x, a.y, a.z,
+			b.x, b.y, b.z,
+			c.x, c.y, c.z,
 		};
 
 		return coordinates;
@@ -107,7 +150,7 @@ struct Triangle{
 			// Position
 			coordinates[ 0 ] = a.x;
 			coordinates[ 1 ] = a.y;
-			coordinates[ 2 ] = 0;
+			coordinates[ 2 ] = a.z;
 			// Color
 			coordinates[ 3 ] = 0.204;
 			coordinates[ 4 ] = 0.275;
@@ -116,7 +159,7 @@ struct Triangle{
 			// Position
 			coordinates[ 6 ] = b.x;
 			coordinates[ 7 ] = b.y;
-			coordinates[ 8 ] = 0;
+			coordinates[ 8 ] = b.z;
 			// Color
 			coordinates[ 9 ] = 0.204;
 			coordinates[ 10 ] = 0.275;
@@ -125,7 +168,7 @@ struct Triangle{
 			// Position
 			coordinates[ 12 ] = c.x;
 			coordinates[ 13 ] = c.y;
-			coordinates[ 14 ] = 0;
+			coordinates[ 14 ] = c.z;
 			// Color
 			coordinates[ 15 ] = 0.204;
 			coordinates[ 16 ] = 0.275;
@@ -136,11 +179,8 @@ struct Triangle{
 			// Position
 			coordinates[ 0 ] = a.x;
 			coordinates[ 1 ] = a.y;
-			coordinates[ 2 ] = 0;
+			coordinates[ 2 ] = a.z;
 			// Color
-			/*coordinates[ 3 ] = 0.388;
-			coordinates[ 4 ] = 0.878;
-			coordinates[ 5 ] = 0.157;*/
 			coordinates[ 3 ] = 0.804;
 			coordinates[ 4 ] = 0.141;
 			coordinates[ 5 ] = 0.557;
@@ -148,7 +188,7 @@ struct Triangle{
 			// Position
 			coordinates[ 6 ] = b.x;
 			coordinates[ 7 ] = b.y;
-			coordinates[ 8 ] = 0;
+			coordinates[ 8 ] = b.z;
 			// Color
 			/*coordinates[ 9 ] = 0.388;
 			coordinates[ 10 ] = 0.878;
@@ -205,6 +245,7 @@ public:
 
 	void execute();
 	std::vector<Triangle> deflate();
+	void DoIt3D();
 	float *GetVertices();
 	float *GetVerticesWithColors();
 

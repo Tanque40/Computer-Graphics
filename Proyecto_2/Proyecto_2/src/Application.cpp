@@ -5,6 +5,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw_gl3.h"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -37,7 +40,7 @@ int main( void ){
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow( 920, 920, "Proyecto_1", NULL, NULL );
+    window = glfwCreateWindow( 1080, 810, "Proyecto_1", NULL, NULL );
     if( !window ){
         glfwTerminate();
         return -1;
@@ -57,9 +60,10 @@ int main( void ){
 
     {
         float tillingDiameter = 1.0f;
-        Penrose p( 2, Coordinate( 0.0, -0.0 ), 36, tillingDiameter );
+        Penrose p( 3, Coordinate( 0.0, -0.0 ), 36, tillingDiameter );
 
         p.execute();
+        p.DoIt3D();
 
         float *vertices = p.GetVerticesWithColors();
         int numVertices = p.GetNumTriangles() * 18;
@@ -86,6 +90,16 @@ int main( void ){
 
         glPolygonMode( GL_FRONT, GL_FILL );
         
+        glm::mat4 proj = glm::ortho( -4.0f, 4.0f, -3.0f, 3.0f, -3.0f, 3.0f );
+        glm::mat4 view = glm::translate( glm::mat4( 1.0f ), glm::vec3( 0, 0, 0 ) );
+
+        // Setup ImGui binding
+        ImGui::CreateContext();
+        ImGui_ImplGlfwGL3_Init( window, true );
+
+        // Setup style
+        ImGui::StyleColorsDark();
+
         time_t seconds;
         seconds = time( NULL );
         int passed_seconds;
@@ -104,6 +118,8 @@ int main( void ){
             vb.Bind();
             va.Bind();
             GLCall( glDrawArrays( GL_TRIANGLES, 0, numVertices ) );
+
+            
 
             glm::mat4 trans = glm::mat4( 1.0f );
 

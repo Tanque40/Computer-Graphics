@@ -20,6 +20,7 @@ Penrose::Penrose( int _loops, Coordinate _origin, int _degree, float _height ){
 	Coordinate p = Coordinate( _height, 0 );
 	for( int i = 0; i < 10; i++ ){
 		Coordinate temp = Coordinate::RotatePoint( _origin, _degree, p );
+		//Coordinate temp = Coordinate::RotatePoint3D( _origin, _degree, p, "YZ");
 		if( i % 2 == 0 ){
 			triangles.push_back( Triangle( _origin, p, temp, 0 ) );
 		} else{
@@ -79,6 +80,52 @@ std::vector<Triangle> Penrose::deflate(){
 	}
 
 	return temp;
+}
+
+void Penrose::DoIt3D(){
+
+	for( const Triangle& t : triangles ){
+
+		glm::vec3 origin = glm::vec3( t.a.x, t.a.y, t.a.z );
+		glm::vec3 u = glm::vec3( t.b.x, t.b.y, t.b.z );
+		glm::vec3 v = glm::vec3( t.c.x, t.c.y, t.c.z );
+
+		glm::vec3 Normal_Vector = glm::cross( u, v );
+		glm::vec3 Normalized_Vector = glm::normalize( Normal_Vector );
+
+		glm::vec3 top_point = origin + Normalized_Vector;
+
+		triangles.push_back(
+			Triangle(
+				Coordinate(top_point.x, top_point.y, top_point.z ),
+				t.a,
+				t.b,
+				t.type
+			) 
+		);
+
+		triangles.push_back(
+			Triangle(
+				Coordinate( top_point.x, top_point.y, top_point.z ),
+				t.a,
+				t.c,
+				t.type
+			)
+		);
+
+		triangles.push_back(
+			Triangle(
+				Coordinate( top_point.x, top_point.y, top_point.z ),
+				t.b,
+				t.c,
+				t.type
+			)
+		);
+
+		NumTriangles += 3;
+
+	}
+
 }
 
 float *Penrose::GetVertices(){

@@ -87,8 +87,8 @@ void Penrose::DoIt3D(){
 	for( const Triangle& t : triangles ){
 
 		glm::vec3 origin = glm::vec3( t.a.x, t.a.y, t.a.z );
-		glm::vec3 u = glm::vec3( t.b.x, t.b.y, t.b.z );
-		glm::vec3 v = glm::vec3( t.c.x, t.c.y, t.c.z );
+		glm::vec3 u = glm::vec3( t.b.x - t.a.x, t.b.y - t.a.y, t.b.z - t.a.z );
+		glm::vec3 v = glm::vec3( t.c.x - t.a.x, t.c.y - t.a.y, t.c.z - t.a.z );
 
 		glm::vec3 Normal_Vector = glm::cross( u, v );
 		glm::vec3 Normalized_Vector = glm::normalize( Normal_Vector );
@@ -98,8 +98,8 @@ void Penrose::DoIt3D(){
 		triangles.push_back(
 			Triangle(
 				Coordinate(top_point.x, top_point.y, top_point.z ),
-				t.a,
 				t.b,
+				t.a,
 				t.type
 			) 
 		);
@@ -116,8 +116,8 @@ void Penrose::DoIt3D(){
 		triangles.push_back(
 			Triangle(
 				Coordinate( top_point.x, top_point.y, top_point.z ),
-				t.b,
 				t.c,
+				t.b,
 				t.type
 			)
 		);

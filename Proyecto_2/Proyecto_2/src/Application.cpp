@@ -68,6 +68,8 @@ int main( void ){
         float *vertices = p.GetVerticesWithColors();
         int numVertices = p.GetNumTriangles() * 18;
 
+        std::cout << "tringulos: " << p.GetNumTriangles() << std::endl;
+
         VertexArray va;
 
         VertexBuffer vb( vertices, numVertices * sizeof( float ) );
@@ -78,7 +80,7 @@ int main( void ){
         va.AddBuffer( vb, layout );
         va.Bind();
 
-        Shader shader( "res/shaders/animation_1.shader" );
+        Shader shader( "res/shaders/project_2.shader" );
         shader.Bind();
 
         va.UnBind();
@@ -90,8 +92,6 @@ int main( void ){
 
         glPolygonMode( GL_FRONT, GL_FILL );
         
-        glm::mat4 proj = glm::ortho( -4.0f, 4.0f, -3.0f, 3.0f, -3.0f, 3.0f );
-        glm::mat4 view = glm::translate( glm::mat4( 1.0f ), glm::vec3( 0, 0, 0 ) );
 
         // Setup ImGui binding
         ImGui::CreateContext();
@@ -100,33 +100,109 @@ int main( void ){
         // Setup style
         ImGui::StyleColorsDark();
 
-        time_t seconds;
-        seconds = time( NULL );
-        int passed_seconds;
-        float translation = 0.01;
-        float r = 0.001;
-        float scale = 1.0;
+        // Variables
+        // for projection
+        float xmin = -4.0f;
+        float xmax = 4.0f;
+        float ymin = -3.0f;
+        float ymax = 3.0f;
+        float zmin = -3.0f;
+        float zmax = 3.0f;
+
+        // for view
+        glm::vec3 cameraPos = glm::vec3( 0.0f, 0.0f, 1.0f );
+        glm::vec3 cameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
+        glm::vec3 cameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
+
+        //for Model
+        glm::vec3 translate_Vector( 0.0f, 0.0f, 0.0f );
+        float rotate_angle = 0.0f;
+        glm::vec3 rotate_Vector(1.0f, 0.0f, 0.0f);
+        glm::vec3 scale_Vector( 1.0, 1.0, 0.0 );
+
         /* Loop until the user closes the window */
         while( !glfwWindowShouldClose( window ) ){
             /* Render here */
             renderer.Clear();
 
+            ImGui_ImplGlfwGL3_NewFrame();
 
             processInput( window );
             shader.Bind();
 
             vb.Bind();
             va.Bind();
-            GLCall( glDrawArrays( GL_TRIANGLES, 0, numVertices ) );
 
-            
+            {   
+                // Projection
+                glm::mat4 projection = glm::ortho( xmin, xmax, ymin, ymax, zmin, zmax );
 
-            glm::mat4 trans = glm::mat4( 1.0f );
+                // View
+                glm::mat4 view = glm::lookAt( cameraPos, cameraPos + cameraFront, cameraUp );
 
-            //std::cout << "time" << passed_seconds % 20 << std::endl;
+                // Model
+                glm::mat4 model = glm::mat4( 1.0f );
+                model = glm::translate( model, translate_Vector );
+                model = glm::rotate( model, rotate_angle, rotate_Vector );
+                model = glm::scale( model, scale_Vector );
 
-            shader.SetUniformsMat4( "transform", trans, 1 );
-            shader.SetUniformFloat( "time", 0 );
+                // Set uniforms
+                shader.SetuniformsMat4f( "projection", projection );
+                shader.SetuniformsMat4f( "view", view );
+                shader.SetuniformsMat4f( "model", model );
+                shader.SetUniformFloat( "time", 0 );
+
+                // Renderer
+                GLCall( glDrawArrays( GL_TRIANGLES, 0, numVertices ) );
+            }
+
+            // 1. Show a simple window.
+            // Tip: if we don't call ImGui::Begin()/ImGui::End() the widgets automatically appears in a window called "Debug".
+            {
+
+                ImGui::Text( "Proyecto 2" );
+                ImGui::TextWrapped( "En este menu se pueden controlar algunos aspectos generales del proyecto como el uso de proyeccion, vista y modelo." );
+                ImGui::TextWrapped( "Al igual que manejaremos la direcciones de la luz y la ubicacion de la misma." );
+
+                if( ImGui::CollapsingHeader( "Modelo" ) ){
+                    // translate
+                    ImGui::SliderFloat3( "Vector de Transacion: ", &translate_Vector.x, xmin, xmax );
+
+                    //rotate
+                    ImGui::SliderAngle( "Angulo de rotacion", &rotate_angle );
+                    ImGui::SliderFloat3( "Vector de Rotacion", &rotate_Vector.x, 0.0f, 1.0f);
+                    
+                    //scale
+                    ImGui::SliderFloat3( "Escalado", &scale_Vector.x, xmin, xmax );
+
+                }
+
+                if( ImGui::CollapsingHeader( "Vista" ) ){
+                    
+                    ImGui::SliderFloat3( "CameraPos", &cameraPos.x, -20.0f, 20.0f );
+                    ImGui::SliderFloat3( "CameraFront", &cameraFront.x, -40.0f, 40.0f );
+                    ImGui::SliderFloat3( "CameraUp", &cameraUp.x, -20.0f, 20.0f );
+
+                }
+
+                if( ImGui::CollapsingHeader( "Proyeccion" ) ){
+                    
+                    ImGui::SliderFloat( "X_Min", &xmin, -10.0f, 0.0f );
+                    ImGui::SliderFloat( "X_Max", &xmax, 0.0f, 10.0f );
+                    ImGui::SliderFloat( "Y_Min", &ymin, -10.0f, 0.0f );
+                    ImGui::SliderFloat( "Y_Max", &ymax, 0.0f, 10.0f );
+                    ImGui::SliderFloat( "Z_Min", &zmin, -10.0f, 0.0f );
+                    ImGui::SliderFloat( "Z_Max", &zmax, 0.0f, 10.0f );
+
+                }
+
+                ImGui::Text( "Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate );
+
+            }
+
+
+            ImGui::Render();
+            ImGui_ImplGlfwGL3_RenderDrawData( ImGui::GetDrawData() );
 
             /* Swap front and back buffers */
             GLCall( glfwSwapBuffers( window ) );
@@ -136,6 +212,10 @@ int main( void ){
 
         }
     }
+
+    // Cleanup
+    ImGui_ImplGlfwGL3_Shutdown();
+    ImGui::DestroyContext();
 
     glfwTerminate();
     return 0;

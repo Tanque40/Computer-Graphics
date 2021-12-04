@@ -70,7 +70,7 @@ struct Coordinate{
 		// translate point back:
 		px = xnew + origin.x;
 		py = ynew + origin.y;
-		return Coordinate( px, py );
+		return Coordinate( px, py, 0 );
 	}
 
 	// @return the rotation point p around some origin point r3 we can select the axis (X, Y, Z, XY, XZ, YZ)
@@ -190,9 +190,6 @@ struct Triangle{
 			coordinates[ 7 ] = b.y;
 			coordinates[ 8 ] = b.z;
 			// Color
-			/*coordinates[ 9 ] = 0.388;
-			coordinates[ 10 ] = 0.878;
-			coordinates[ 11 ] = 0.157;*/
 			coordinates[ 9 ] = 0.804;
 			coordinates[ 10 ] = 0.141;
 			coordinates[ 11 ] = 0.557;
@@ -200,11 +197,8 @@ struct Triangle{
 			// Position
 			coordinates[ 12 ] = c.x;
 			coordinates[ 13 ] = c.y;
-			coordinates[ 14 ] = 0;
+			coordinates[ 14 ] = c.z;
 			// Color
-			/*coordinates[ 15 ] = 0.388;
-			coordinates[ 16 ] = 0.878;
-			coordinates[ 17 ] = 0.157;*/
 			coordinates[ 15 ] = 0.804;
 			coordinates[ 16 ] = 0.141;
 			coordinates[ 17 ] = 0.557;

@@ -153,6 +153,7 @@
   <ItemGroup>
     <None Include="res\shaders\animation_1.shader" />
     <None Include="res\shaders\basic.shader" />
+    <None Include="res\shaders\project_2.shader" />
     <None Include="src\vendor\glm\detail\func_common.inl" />
     <None Include="src\vendor\glm\detail\func_common_simd.inl" />
     <None Include="src\vendor\glm\detail\func_exponential.inl" />

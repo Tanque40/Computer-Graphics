@@ -208,6 +208,65 @@ struct Triangle{
 
 		return coordinates;
 	}
+	
+	// @return the coordinates of vetices and texture coords
+	float *getTriangleCoordinatesWithTexCoords(){
+		float coordinates[ 18 ];
+		
+		if( type ){
+
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			coordinates[ 3 ] = 0.0f;
+			coordinates[ 4 ] = 0.0f;
+			coordinates[ 5 ] = 0.0f;
+
+
+			coordinates[ 6 ] = b.x;
+			coordinates[ 7 ] = b.y;
+			coordinates[ 8 ] = b.z;
+			coordinates[ 9 ] = 1.0f;
+			coordinates[ 10 ] = 0.0f;
+			coordinates[ 11 ] = 0.0f;
+
+			coordinates[ 12 ] = c.x;
+			coordinates[ 13 ] = c.y;
+			coordinates[ 14 ] = c.z;
+			coordinates[ 15 ] = 0.5f;
+			coordinates[ 16 ] = 1.0f;
+			coordinates[ 17 ] = 0.0f;
+
+		} else{
+
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			coordinates[ 3 ] = 0.0f;
+			coordinates[ 4 ] = 0.0f;
+			coordinates[ 5 ] = 1.0f;
+
+
+			coordinates[ 6 ] = b.x;
+			coordinates[ 7 ] = b.y;
+			coordinates[ 8 ] = b.z;
+			coordinates[ 9 ] = 1.0f;
+			coordinates[ 10 ] = 0.0f;
+			coordinates[ 11 ] = 1.0f;
+
+			coordinates[ 12 ] = c.x;
+			coordinates[ 13 ] = c.y;
+			coordinates[ 14 ] = c.z;
+			coordinates[ 15 ] = 0.5f;
+			coordinates[ 16 ] = 1.0f;
+			coordinates[ 17 ] = 1.0f;
+
+		}
+
+		
+
+		return coordinates;
+	}
 
 	// @return a new issoceles triangle from point a, angle at point and height h
 	static Triangle iso(Coordinate a, int degree, float h){
@@ -240,8 +299,10 @@ public:
 	void execute();
 	std::vector<Triangle> deflate();
 	void DoIt3D();
+	std::vector<Triangle> DoIT3D();
 	float *GetVertices();
 	float *GetVerticesWithColors();
+	float *GetVerticesWithTextureCoords();
 
 	inline const int GetNumTriangles() const{ return NumTriangles; }
 

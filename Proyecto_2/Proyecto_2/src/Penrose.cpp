@@ -84,7 +84,24 @@ std::vector<Triangle> Penrose::deflate(){
 
 void Penrose::DoIt3D(){
 
-	for( const Triangle& t : triangles ){
+	std::vector<Triangle> temp = DoIT3D();
+
+	for( const Triangle& t : temp ){
+
+		triangles.push_back(
+			t
+		);
+
+		NumTriangles++;
+
+	}
+
+}
+
+std::vector<Triangle> Penrose::DoIT3D(){
+	std::vector<Triangle> temp;
+
+	for( const Triangle &t : triangles ){
 
 		glm::vec3 origin = glm::vec3( t.a.x, t.a.y, t.a.z );
 		glm::vec3 u = glm::vec3( t.b.x - t.a.x, t.b.y - t.a.y, t.b.z - t.a.z );
@@ -93,18 +110,18 @@ void Penrose::DoIt3D(){
 		glm::vec3 Normal_Vector = glm::cross( u, v );
 		glm::vec3 Normalized_Vector = glm::normalize( Normal_Vector );
 
-		glm::vec3 top_point = origin + Normalized_Vector;
+		glm::vec3 top_point = origin + (Normalized_Vector );
 
-		triangles.push_back(
+		temp.push_back(
 			Triangle(
-				Coordinate(top_point.x, top_point.y, top_point.z ),
+				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.b,
 				t.a,
 				t.type
-			) 
+			)
 		);
 
-		triangles.push_back(
+		temp.push_back(
 			Triangle(
 				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.a,
@@ -113,7 +130,7 @@ void Penrose::DoIt3D(){
 			)
 		);
 
-		triangles.push_back(
+		temp.push_back(
 			Triangle(
 				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.c,
@@ -121,11 +138,10 @@ void Penrose::DoIt3D(){
 				t.type
 			)
 		);
-
-		NumTriangles += 3;
 
 	}
 
+	return temp;
 }
 
 float *Penrose::GetVertices(){
@@ -157,6 +173,26 @@ float *Penrose::GetVerticesWithColors(){
 	for( Triangle t : triangles ){
 
 		float *triangleVertices = t.getTriangleCoordinatesWithColors();
+
+		for( int j = 0; j < 18; j++ ){
+
+			vertices[ i ] = triangleVertices[ j ];
+			i++;
+		}
+
+	}
+
+	return vertices;
+}
+
+float *Penrose::GetVerticesWithTextureCoords(){
+	int vectorSize = NumTriangles * 18;
+	float *vertices = new float[ vectorSize ];
+
+	int i = 0;
+	for( Triangle t : triangles ){
+
+		float *triangleVertices = t.getTriangleCoordinatesWithTexCoords();
 
 		for( int j = 0; j < 18; j++ ){
 

@@ -162,3 +162,9 @@ void Shader::Setuniforms1i( const std::string &name, int value ){
     GLCall( glUniform1i( GetUniformLocation(name), value ) );
 
 }
+
+void Shader::Setuniforms1iv( const std::string &name, int value, int *values ){
+
+    GLCall( glUniform1iv( GetUniformLocation( name ), value, values ) );
+
+}

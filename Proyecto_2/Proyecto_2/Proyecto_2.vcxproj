@@ -295,7 +295,9 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\end_stone.png" />
     <Image Include="res\textures\mario.png" />
+    <Image Include="res\textures\nether_brick.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />

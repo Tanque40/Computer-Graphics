@@ -440,6 +440,12 @@
     <Image Include="res\textures\mario.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\textures\end_stone.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\nether_brick.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">

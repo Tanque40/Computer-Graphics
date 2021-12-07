@@ -57,7 +57,7 @@ std::vector<Triangle> Penrose::deflate(){
 
 	for( const Triangle& t : triangles ){
 
-		if( t.type ){
+		if( t.type == 2 ){
 
 			// B + ( ( A - B) / PHI )
 			Coordinate Q = Coordinate::sum( t.b, Coordinate::divide( Coordinate::diff( t.a, t.b ), PHI ) );
@@ -68,7 +68,7 @@ std::vector<Triangle> Penrose::deflate(){
 			temp.push_back( Triangle( Q, R, t.b, 1 ) );
 			temp.push_back( Triangle( R, Q, t.a, 0 ) );
 
-		} else {
+		} else if( t.type == 1 ) {
 
 			Coordinate P = Coordinate::sum( t.a, Coordinate::divide( Coordinate::diff( t.b, t.a ), PHI ) );
 
@@ -101,14 +101,11 @@ void Penrose::DoIt3D(){
 std::vector<Triangle> Penrose::DoIT3D(){
 	std::vector<Triangle> temp;
 
-	for( const Triangle &t : triangles ){
+	for( Triangle &t : triangles ){
 
 		glm::vec3 origin = glm::vec3( t.a.x, t.a.y, t.a.z );
-		glm::vec3 u = glm::vec3( t.b.x - t.a.x, t.b.y - t.a.y, t.b.z - t.a.z );
-		glm::vec3 v = glm::vec3( t.c.x - t.a.x, t.c.y - t.a.y, t.c.z - t.a.z );
-
-		glm::vec3 Normal_Vector = glm::cross( u, v );
-		glm::vec3 Normalized_Vector = glm::normalize( Normal_Vector );
+		
+		glm::vec3 Normalized_Vector = t.GetNormalOfTriangle();
 
 		glm::vec3 top_point = origin + (Normalized_Vector );
 
@@ -117,7 +114,7 @@ std::vector<Triangle> Penrose::DoIT3D(){
 				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.b,
 				t.a,
-				t.type
+				t.type - 1
 			)
 		);
 
@@ -126,7 +123,7 @@ std::vector<Triangle> Penrose::DoIT3D(){
 				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.a,
 				t.c,
-				t.type
+				t.type - 1
 			)
 		);
 
@@ -135,7 +132,7 @@ std::vector<Triangle> Penrose::DoIT3D(){
 				Coordinate( top_point.x, top_point.y, top_point.z ),
 				t.c,
 				t.b,
-				t.type
+				t.type - 1
 			)
 		);
 
@@ -195,6 +192,46 @@ float *Penrose::GetVerticesWithTextureCoords(){
 		float *triangleVertices = t.getTriangleCoordinatesWithTexCoords();
 
 		for( int j = 0; j < 18; j++ ){
+
+			vertices[ i ] = triangleVertices[ j ];
+			i++;
+		}
+
+	}
+
+	return vertices;
+}
+
+float *Penrose::GetVerticesWithColorsAndTextureCoords(){
+	int vectorSize = NumTriangles * 27;
+	float *vertices = new float[ vectorSize ];
+
+	int i = 0;
+	for( Triangle t : triangles ){
+
+		float *triangleVertices = t.getTriangleCoordinatesWithColorsAndTexCoords();
+
+		for( int j = 0; j < 27; j++ ){
+
+			vertices[ i ] = triangleVertices[ j ];
+			i++;
+		}
+
+	}
+
+	return vertices;
+}
+
+float *Penrose::GetVerticesWithColorsTexCoordsAndNormalLight(){
+	int vectorSize = NumTriangles * 36;
+	float *vertices = new float[ vectorSize ];
+
+	int i = 0;
+	for( Triangle t : triangles ){
+
+		float *triangleVertices = t.getTriangleCoordinatesWithColorsTexCoordsAndNormalLight();
+
+		for( int j = 0; j < 36; j++ ){
 
 			vertices[ i ] = triangleVertices[ j ];
 			i++;

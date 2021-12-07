@@ -12,6 +12,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+#include <vector>
 
 #include "Renderer.h"
 
@@ -21,12 +22,33 @@
 #include "VertexArray.h"
 #include "Shader.h"
 #include "Texture.h"
+#include "Camera.h"
 
 #include "Penrose.h"
 
 
 void framebuffer_size_callback( GLFWwindow *window, int width, int height );
+void mouse_callback( GLFWwindow *window, double xpos, double ypos );
+void scroll_callback( GLFWwindow *window, double xoffset, double yoffset );
 void processInput( GLFWwindow *window );
+
+// settings
+const unsigned int SCR_WIDTH = 1080;
+const unsigned int SCR_HEIGHT = 810;
+
+// Tilling Settings
+const float TILLING_DIAMETER = 1.0f;
+const float PARTITIONS = 5;
+
+// camera
+Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 int main( void ){
     GLFWwindow *window;
@@ -41,7 +63,7 @@ int main( void ){
 
 
     /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow( 1080, 810, "Proyecto_1", NULL, NULL );
+    window = glfwCreateWindow( SCR_WIDTH, SCR_HEIGHT, "Proyecto_2", NULL, NULL );
     if( !window ){
         glfwTerminate();
         return -1;
@@ -50,6 +72,12 @@ int main( void ){
     /* Make the window's context current */
     glfwMakeContextCurrent( window );
     glfwSetFramebufferSizeCallback( window, framebuffer_size_callback );
+    glfwSetCursorPosCallback( window, mouse_callback );
+    glfwSetScrollCallback( window, scroll_callback );
+
+    // tell GLFW to capture our mouse
+    glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+
 
     glfwSwapInterval( 1 );
 
@@ -60,16 +88,14 @@ int main( void ){
     std::cout << glGetString( GL_VERSION ) << std::endl;
 
     {
-        float tillingDiameter = 2.0f;
-        Penrose p(1, Coordinate( 0.0, -0.0 ), 36, tillingDiameter );
+        
+        Penrose p(PARTITIONS, Coordinate( 0.0, 0.0 ), 36, TILLING_DIAMETER );
 
         p.execute();
         p.DoIt3D();
 
-        //float *vertices = p.GetVerticesWithColors();
-        float *vertices = p.GetVerticesWithTextureCoords();
-        //int numVertices = p.GetNumTriangles() * 18;
-        int numVertices = p.GetNumTriangles() * 18;
+        float *vertices = p.GetVerticesWithColorsTexCoordsAndNormalLight();
+        int numVertices = p.GetNumTriangles() * 36;
         
         int numIndices = p.GetNumTriangles() * 3;
 
@@ -79,18 +105,6 @@ int main( void ){
         }
 
         IndexBuffer ib( indices, numIndices );
-
-        /*std::cout << "vertices:" << std::endl;
-        for( int i = 0; i < numVertices; i += 6 ){
-            std::cout << 
-                vertices[i] << ", " <<
-                vertices[ i + 1 ] << ", " <<
-                vertices[ i + 2 ] << ", " <<
-                vertices[ i + 3 ] << ", " <<
-                vertices[ i + 4 ] << ", " <<
-                vertices[ i + 5 ] << " "
-                << std::endl;;
-        }*/
 
         std::cout << "tringulos: " << p.GetNumTriangles() << std::endl;
         GLCall( glEnable( GL_BLEND ) );
@@ -102,38 +116,34 @@ int main( void ){
 
         VertexBufferLayout layout;
         layout.Push<float>( 3 );
+        layout.Push<float>( 3 );
         layout.Push<float>( 2 );
         layout.Push<float>( 1 );
+        layout.Push<float>( 3 );
         va.AddBuffer( vb, layout );
         va.Bind();
 
         Shader shader( "res/shaders/project_2.shader" );
         shader.Bind();
 
-        Texture texture_1( "res/textures/end_stone.png" );
-        Texture texture_2( "res/textures/nether_brick.png" );
-        
-
+        Texture texture_1( "res/textures/nether_brick.png" );
+        Texture texture_2( "res/textures/amatista_block.png" );
+       
         GLuint m_texture_1 = texture_1.GetM_RendererID();
         GLuint m_texture_2 = texture_2.GetM_RendererID();
-        GLCall( glBindTextureUnit( 1, m_texture_1 ) );
-        GLCall( glBindTextureUnit( 0, m_texture_2 ) );
-        int samplers[ 2 ] = { 0, 1 };
-        shader.Setuniforms1iv( "u_Textures", 2, samplers );
+        GLCall( glBindTextureUnit( 2, m_texture_1 ) );
+        GLCall( glBindTextureUnit( 1, m_texture_2 ) );
+        int samplers[ 3 ] = { 0, 1, 2 };
+        shader.Setuniforms1iv( "material.diffuse", 3, samplers );
         
-
-
-
         va.UnBind();
         shader.UnBind();
         vb.UnBind();
 
         Renderer renderer;
 
-
         glPolygonMode( GL_FRONT, GL_FILL );
         
-
         // Setup ImGui binding
         ImGui::CreateContext();
         ImGui_ImplGlfwGL3_Init( window, true );
@@ -150,38 +160,50 @@ int main( void ){
         float zmin = -3.0f;
         float zmax = 3.0f;
 
-        // for view
-        glm::vec3 cameraPos = glm::vec3( 0.0f, 0.0f, 1.0f );
-        glm::vec3 cameraFront = glm::vec3( 0.0f, 0.0f, -1.0f );
-        glm::vec3 cameraUp = glm::vec3( 0.0f, 1.0f, 0.0f );
-
         //for Model
-        glm::vec3 translate_Vector( -1.5f, 0.0f, 0.0f );
+        glm::vec3 translate_Vector( 0.0f, 0.0f, 0.0f );
         float rotate_angle = 0.0f;
         glm::vec3 rotate_Vector(1.0f, 0.0f, 0.0f);
-        glm::vec3 scale_Vector( 1.0, 1.0, 1.0 );
-
+        glm::vec3 scale_Vector( 1.0, 1.0, 0.5 );
+        
+        // For light
+        glm::vec3 lightPosition( 0.0, 0.0, 5.0 );
+        // positions of the point lights
+        glm::vec3 pointLightPositions[] = {
+            glm::vec3(2.7f,  2.2f,  2.0f ),
+            glm::vec3( 2.3f, -3.3f, -4.0f ),
+            glm::vec3( -4.0f,  2.0f, -10.0f ),
+            glm::vec3( 3.0f,  3.0f, -3.0f )
+        };
 
         /* Loop until the user closes the window */
         while( !glfwWindowShouldClose( window ) ){
+            // per - frame time logic
+            // --------------------
+            float currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
             /* Render here */
             renderer.Clear();
 
             ImGui_ImplGlfwGL3_NewFrame();
 
             processInput( window );
-            shader.Bind();
             
-
+            shader.Bind();      
+           
             vb.Bind();
             va.Bind();
 
-            {   
+            {               
+
                 // Projection
-                glm::mat4 projection = glm::ortho( xmin, xmax, ymin, ymax, zmin, zmax );
+                glm::mat4 projection = glm::perspective( glm::radians( camera.Zoom ), 1080.0f / 810.0f, 3.0f, -100.0f );
+
 
                 // View
-                glm::mat4 view = glm::lookAt( cameraPos, cameraPos + cameraFront, cameraUp );
+                glm::mat4 view = camera.GetViewMatrix();
 
                 // Model
                 glm::mat4 model = glm::mat4( 1.0f );
@@ -193,12 +215,70 @@ int main( void ){
                 shader.SetuniformsMat4f( "projection", projection );
                 shader.SetuniformsMat4f( "view", view );
                 shader.SetuniformsMat4f( "model", model );
-                shader.SetUniformFloat( "time", 0 );
-                
+                shader.SetUniformFloat( "time", glfwGetTime());
+                shader.SetuniformsVec3( "viewPos", camera.Position );
 
+                /*
+                 * Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
+                 * the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
+                 * by defining light types as classes and set their values in there, or by using a more efficient uniform approach
+                 * by using 'Uniform buffer objects', but that is something we'll discuss in the 'Advanced GLSL' tutorial.
+                 */
+                // directional light
+                shader.SetuniformsVec3( "dirLight.direction", lightPosition );
+                shader.SetuniformsVec3( "dirLight.ambient", glm::vec3( 0.05f, 0.05f, 0.05f) );
+                shader.SetuniformsVec3( "dirLight.diffuse", glm::vec3( 0.9f, 0.9f, 0.9f) );
+                shader.SetuniformsVec3( "dirLight.specular", glm::vec3( 0.5f, 0.5f, 0.5f) );
+                // point light 1
+                shader.SetuniformsVec3( "pointLights[0].position", pointLightPositions[ 0 ] );
+                shader.SetuniformsVec3( "pointLights[0].ambient", glm::vec3( 0.05f, 0.05f, 0.05f) );
+                shader.SetuniformsVec3( "pointLights[0].diffuse", glm::vec3( 0.8f, 0.8f, 0.8f) );
+                shader.SetuniformsVec3( "pointLights[0].specular", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetUniformFloat( "pointLights[0].constant", 1.0f );
+                shader.SetUniformFloat( "pointLights[0].linear", 0.09 );
+                shader.SetUniformFloat( "pointLights[0].quadratic", 0.032 );
+                // point light 2
+                shader.SetuniformsVec3( "pointLights[1].position", pointLightPositions[ 1 ] );
+                shader.SetuniformsVec3( "pointLights[1].ambient", glm::vec3( 0.05f, 0.05f, 0.05f) );
+                shader.SetuniformsVec3( "pointLights[1].diffuse", glm::vec3( 0.8f, 0.8f, 0.8f) );
+                shader.SetuniformsVec3( "pointLights[1].specular", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetUniformFloat( "pointLights[1].constant", 1.0f );
+                shader.SetUniformFloat( "pointLights[1].linear", 0.09 );
+                shader.SetUniformFloat( "pointLights[1].quadratic", 0.032 );
+                // point light 3
+                shader.SetuniformsVec3( "pointLights[2].position", pointLightPositions[ 2 ] );
+                shader.SetuniformsVec3( "pointLights[2].ambient", glm::vec3( 0.05f, 0.05f, 0.05f) );
+                shader.SetuniformsVec3( "pointLights[2].diffuse", glm::vec3( 0.8f, 0.8f, 0.8f) );
+                shader.SetuniformsVec3( "pointLights[2].specular", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetUniformFloat( "pointLights[2].constant", 1.0f );
+                shader.SetUniformFloat( "pointLights[2].linear", 0.09 );
+                shader.SetUniformFloat( "pointLights[2].quadratic", 0.032 );
+                // point light 4
+                shader.SetuniformsVec3( "pointLights[3].position", pointLightPositions[ 3 ] );
+                shader.SetuniformsVec3( "pointLights[3].ambient", glm::vec3( 0.05f, 0.05f, 0.05f) );
+                shader.SetuniformsVec3( "pointLights[3].diffuse", glm::vec3( 0.8f, 0.8f, 0.8f) );
+                shader.SetuniformsVec3( "pointLights[3].specular", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetUniformFloat( "pointLights[3].constant", 1.0f );
+                shader.SetUniformFloat( "pointLights[3].linear", 0.09 );
+                shader.SetUniformFloat( "pointLights[3].quadratic", 0.032 );
+                // spotLight
+                shader.SetuniformsVec3( "spotLight.position", camera.Position );
+                shader.SetuniformsVec3( "spotLight.direction", camera.Front );
+                shader.SetuniformsVec3( "spotLight.ambient", glm::vec3( 0.0f, 0.0f, 0.0f) );
+                shader.SetuniformsVec3( "spotLight.diffuse", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetuniformsVec3( "spotLight.specular", glm::vec3( 1.0f, 1.0f, 1.0f) );
+                shader.SetUniformFloat( "spotLight.constant", 1.0f );
+                shader.SetUniformFloat( "spotLight.linear", 0.09 );
+                shader.SetUniformFloat( "spotLight.quadratic", 0.032 );
+                shader.SetUniformFloat( "spotLight.cutOff", glm::cos( glm::radians( 12.5f ) ) );
+                shader.SetUniformFloat( "spotLight.outerCutOff", glm::cos( glm::radians( 15.0f ) ) );
+
+                // material properties
+                shader.SetuniformsVec3( "material.specular", glm::vec3( 0.2f, 0.2f, 0.2f ) );
+                shader.SetUniformFloat( "material.shininess", 45.0f );
                 // Renderer
-                //GLCall( glDrawArrays( GL_TRIANGLES, 0, numVertices ) );
-                renderer.Draw( va, ib, shader );
+                renderer.Draw( va, ib, shader ); 
+                
             }
 
             // 1. Show a simple window.
@@ -207,8 +287,57 @@ int main( void ){
             {
 
                 ImGui::Text( "Proyecto 2" );
-                ImGui::TextWrapped( "En este menu se pueden controlar algunos aspectos generales del proyecto como el uso de proyeccion, vista y modelo." );
-                ImGui::TextWrapped( "Al igual que manejaremos la direcciones de la luz y la ubicacion de la misma." );
+                ImGui::TextWrapped( "\n Se puede mover la camara con el moviento del mouse y para desplazrse alrededor usa las letras WASD \n" );
+                ImGui::TextWrapped( "\n Si presiona la letra Q se sale del modo mover camara \n" );
+                ImGui::TextWrapped( "\n Presione E para volver a mover la camara \n" );
+                ImGui::TextWrapped( "\nPresiona I para la visualizacon de wireframe\n" );
+                ImGui::TextWrapped( "\nPresiona O para la visualizacion con relleno\n" );
+                ImGui::TextWrapped( "\nPresiona P para la visualizacion de los puntos que conforman\n" );
+                ImGui::TextWrapped( "\nEn este menu se pueden controlar algunos aspectos generales del proyecto como el uso de proyeccion y modelo.\n" );
+                ImGui::TextWrapped( "\nAl igual que manejaremos la direcciones de la luz y la ubicacion de la misma.\n" );
+
+                if( ImGui::CollapsingHeader( "Iluminacion" ) ){
+                    
+                    if( ImGui::TreeNode( "Luz direccional" ) ){
+                        
+                        // mover posición
+                        ImGui::SliderFloat3( "move_luz_direccional", &lightPosition.x, -10.0f, 10.0f );
+                        ImGui::TreePop();
+                    }
+
+                    if( ImGui::TreeNode( "Punto de luz 1" ) ){
+
+                        // mover posición
+                        ImGui::SliderFloat3( "move_punto_luz_1", &pointLightPositions[0].x, -10.0f, 10.0f );
+                        ImGui::TreePop();
+
+                    }
+
+                    if( ImGui::TreeNode( "Punto de luz 2" ) ){
+
+                        // mover posición
+                        ImGui::SliderFloat3( "move_punto_luz_2", &pointLightPositions[ 1 ].x, -10.0f, 10.0f );
+                        ImGui::TreePop();
+
+                    }
+
+                    if( ImGui::TreeNode( "Punto de luz 3" ) ){
+
+                        // mover posición
+                        ImGui::SliderFloat3( "move_punto_luz_3", &pointLightPositions[ 2 ].x, -10.0f, 10.0f );
+                        ImGui::TreePop();
+
+                    }
+
+                    if( ImGui::TreeNode( "Punto de luz 4" ) ){
+
+                        // mover posición
+                        ImGui::SliderFloat3( "move_punto_luz_4", &pointLightPositions[ 3 ].x, -10.0f, 10.0f );
+                        ImGui::TreePop();
+
+                    }
+
+                }
 
                 if( ImGui::CollapsingHeader( "Modelo" ) ){
                     // translate
@@ -220,14 +349,6 @@ int main( void ){
                     
                     //scale
                     ImGui::SliderFloat3( "Escalado", &scale_Vector.x, xmin, xmax );
-
-                }
-
-                if( ImGui::CollapsingHeader( "Vista" ) ){
-                    
-                    ImGui::SliderFloat3( "CameraPos", &cameraPos.x, xmin, xmax );
-                    ImGui::SliderFloat3( "CameraFront", &cameraFront.x, xmin, xmax );
-                    ImGui::SliderFloat3( "CameraUp", &cameraUp.x, -1.0f, 1.0f );
 
                 }
 
@@ -272,17 +393,36 @@ int main( void ){
 void processInput( GLFWwindow *window ){
     if( glfwGetKey( window, GLFW_KEY_ESCAPE ) == GLFW_PRESS )
         glfwSetWindowShouldClose( window, true );
-    if( glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS ){
+    if( glfwGetKey( window, GLFW_KEY_I ) == GLFW_PRESS ){
         GLCall( glPolygonMode( GL_FRONT_AND_BACK, GL_LINE ) );
         std::cout << "w press" << std::endl;
     }
-    if( glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS ){
+    if( glfwGetKey( window, GLFW_KEY_O ) == GLFW_PRESS ){
         GLCall( glPolygonMode( GL_FRONT_AND_BACK, GL_FILL ) );
         std::cout << "S press" << std::endl;
     }
-    if( glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS ){
+    if( glfwGetKey( window, GLFW_KEY_P ) == GLFW_PRESS ){
         GLCall( glPolygonMode( GL_FRONT_AND_BACK, GL_POINT ) );
         std::cout << "a press" << std::endl;
+    }
+    if( glfwGetKey( window, GLFW_KEY_W ) == GLFW_PRESS )
+        camera.ProcessKeyboard( FORWARD, deltaTime );
+    if( glfwGetKey( window, GLFW_KEY_S ) == GLFW_PRESS )
+        camera.ProcessKeyboard( BACKWARD, deltaTime );
+    if( glfwGetKey( window, GLFW_KEY_A ) == GLFW_PRESS )
+        camera.ProcessKeyboard( LEFT, deltaTime );
+    if( glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS )
+        camera.ProcessKeyboard( RIGHT, deltaTime );
+    if( glfwGetKey( window, GLFW_KEY_Q ) == GLFW_PRESS ){
+        // tell GLFW to capture our mouse
+        glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_NORMAL );
+        glfwSetCursorPosCallback( window, nullptr );
+    }
+    if( glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS ){
+        // tell GLFW to capture our mouse
+        glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+        firstMouse = true;
+        glfwSetCursorPosCallback( window, mouse_callback );
     }
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -291,4 +431,28 @@ void framebuffer_size_callback( GLFWwindow *window, int width, int height ){
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
     glViewport( 0, 0, width, height );
+}
+
+// glfw: whenever the mouse moves, this callback is called
+// -------------------------------------------------------
+void mouse_callback( GLFWwindow *window, double xpos, double ypos ){
+    if( firstMouse ){
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.ProcessMouseMovement( xoffset, yoffset );
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback( GLFWwindow *window, double xoffset, double yoffset ){
+    camera.ProcessMouseScroll( yoffset );
 }

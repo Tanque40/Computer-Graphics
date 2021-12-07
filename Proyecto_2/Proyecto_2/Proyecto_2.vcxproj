@@ -295,9 +295,11 @@
     <None Include="src\vendor\glm\gtx\wrap.inl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\textures\amatista_block.png" />
     <Image Include="res\textures\end_stone.png" />
     <Image Include="res\textures\mario.png" />
     <Image Include="res\textures\nether_brick.png" />
+    <Image Include="res\textures\Quartz_block.png" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Application.cpp" />
@@ -316,6 +318,7 @@
     <ClCompile Include="src\VertexBuffer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Penrose.h" />
     <ClInclude Include="src\Renderer.h" />

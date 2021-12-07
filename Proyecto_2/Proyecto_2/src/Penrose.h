@@ -128,7 +128,17 @@ struct Triangle{
 		a = pointA;
 		b = pointB;
 		c = pointC;
-		type = t;
+		type = t + 1;
+	}
+
+	glm::vec3 GetNormalOfTriangle(){
+		glm::vec3 u = glm::vec3( b.x - a.x,b.y - a.y,b.z - a.z );
+		glm::vec3 v = glm::vec3( c.x - a.x, c.y - a.y, c.z - a.z );
+
+		glm::vec3 Normal_Vector = glm::cross( u, v );
+		glm::vec3 Normalized_Vector = glm::normalize( Normal_Vector );
+
+		return Normalized_Vector;
 	}
 
 	float *getTriangleCoordinates(){
@@ -268,6 +278,326 @@ struct Triangle{
 		return coordinates;
 	}
 
+	// @return the coordinates of vetices and texture coords
+	float *getTriangleCoordinatesWithColorsAndTexCoords(){
+		float coordinates[ 27 ];
+		
+		if( type == 2 ){
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 2.0f;
+
+			// Coordenadas
+			coordinates[ 9 ] = b.x;
+			coordinates[ 10 ] = b.y;
+			coordinates[ 11 ] = b.z;
+			// Color
+			coordinates[ 12 ] = 0.7f;
+			coordinates[ 13 ] = 0.7f;
+			coordinates[ 14 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 15 ] = 1.0f;
+			coordinates[ 16 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 17 ] = 2.0f;
+
+			// Coordenadas
+			coordinates[ 18 ] = c.x;
+			coordinates[ 19 ] = c.y;
+			coordinates[ 20 ] = c.z;
+			// Color
+			coordinates[ 21 ] = 0.7f;
+			coordinates[ 22 ] = 0.7f;
+			coordinates[ 23 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 24 ] = 0.5f;
+			coordinates[ 25 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 26 ] = 2.0f;
+
+		} else if( type == 1){
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 1.0f;
+
+			// Coordenadas
+			coordinates[ 9 ] = b.x;
+			coordinates[ 10 ] = b.y;
+			coordinates[ 11 ] = b.z;
+			// Color
+			coordinates[ 12 ] = 0.7f;
+			coordinates[ 13 ] = 0.7f;
+			coordinates[ 14 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 15 ] = 1.0f;
+			coordinates[ 16 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 17 ] = 1.0f;
+
+			// Coordenadas
+			coordinates[ 18 ] = c.x;
+			coordinates[ 19 ] = c.y;
+			coordinates[ 20 ] = c.z;
+			// Color
+			coordinates[ 21 ] = 0.7f;
+			coordinates[ 22 ] = 0.7f;
+			coordinates[ 23 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 24 ] = 0.5f;
+			coordinates[ 25 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 26 ] = 1.0f;
+
+		} else{
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 0.0f;
+
+			// Coordenadas
+			coordinates[ 9 ] = b.x;
+			coordinates[ 10 ] = b.y;
+			coordinates[ 11 ] = b.z;
+			// Color
+			coordinates[ 12 ] = 0.7f;
+			coordinates[ 13 ] = 0.7f;
+			coordinates[ 14 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 15 ] = 1.0f;
+			coordinates[ 16 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 17 ] = 0.0f;
+
+			// Coordenadas
+			coordinates[ 18 ] = c.x;
+			coordinates[ 19 ] = c.y;
+			coordinates[ 20 ] = c.z;
+			// Color
+			coordinates[ 21 ] = 0.7f;
+			coordinates[ 22 ] = 0.7f;
+			coordinates[ 23 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 24 ] = 0.5f;
+			coordinates[ 25 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 26 ] = 0.0f;
+
+		}
+
+		return coordinates;
+	}
+
+	// @return the coordinates of vetices and texture coords and normals for light
+	float *getTriangleCoordinatesWithColorsTexCoordsAndNormalLight(){
+		float coordinates[ 36 ];
+
+		glm::vec3 normal = GetNormalOfTriangle();
+
+		if( type == 2 ){
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 2.0f;
+			// Normal para la Luz
+			coordinates[ 9 ] = normal.x;
+			coordinates[ 10 ] = normal.y;
+			coordinates[ 11 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 12 ] = b.x;
+			coordinates[ 13 ] = b.y;
+			coordinates[ 14 ] = b.z;
+			// Color
+			coordinates[ 15 ] = 0.7f;
+			coordinates[ 16 ] = 0.7f;
+			coordinates[ 17 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 18 ] = 1.0f;
+			coordinates[ 19 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 20 ] = 2.0f;
+			// Normal para la Luz
+			coordinates[ 21 ] = normal.x;
+			coordinates[ 22 ] = normal.y;
+			coordinates[ 23 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 24 ] = c.x;
+			coordinates[ 25 ] = c.y;
+			coordinates[ 26 ] = c.z;
+			// Color
+			coordinates[ 27 ] = 0.7f;
+			coordinates[ 28 ] = 0.7f;
+			coordinates[ 29 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 30 ] = 0.5f;
+			coordinates[ 31 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 32 ] = 2.0f;
+			// Normal para la Luz
+			coordinates[ 33 ] = normal.x;
+			coordinates[ 34 ] = normal.y;
+			coordinates[ 35 ] = normal.z;
+
+		} else if( type == 1 ){
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 1.0f;
+			// Normal para la Luz
+			coordinates[ 9 ] = normal.x;
+			coordinates[ 10 ] = normal.y;
+			coordinates[ 11 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 12 ] = b.x;
+			coordinates[ 13 ] = b.y;
+			coordinates[ 14 ] = b.z;
+			// Color
+			coordinates[ 15 ] = 0.7f;
+			coordinates[ 16 ] = 0.7f;
+			coordinates[ 17 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 18 ] = 1.0f;
+			coordinates[ 19 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 20 ] = 1.0f;
+			// Normal para la Luz
+			coordinates[ 21 ] = normal.x;
+			coordinates[ 22 ] = normal.y;
+			coordinates[ 23 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 24 ] = c.x;
+			coordinates[ 25 ] = c.y;
+			coordinates[ 26 ] = c.z;
+			// Color
+			coordinates[ 27 ] = 0.7f;
+			coordinates[ 28 ] = 0.7f;
+			coordinates[ 29 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 30 ] = 0.5f;
+			coordinates[ 31 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 32 ] = 1.0f;
+			// Normal para la Luz
+			coordinates[ 33 ] = normal.x;
+			coordinates[ 34 ] = normal.y;
+			coordinates[ 35 ] = normal.z;
+
+		} else{
+
+			// Coordenadas
+			coordinates[ 0 ] = a.x;
+			coordinates[ 1 ] = a.y;
+			coordinates[ 2 ] = a.z;
+			// Color
+			coordinates[ 3 ] = 0.7f;
+			coordinates[ 4 ] = 0.7f;
+			coordinates[ 5 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 6 ] = 0.0f;
+			coordinates[ 7 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 8 ] = 0.0f;
+			// Normal para la Luz
+			coordinates[ 9 ] = normal.x;
+			coordinates[ 10 ] = normal.y;
+			coordinates[ 11 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 12 ] = b.x;
+			coordinates[ 13 ] = b.y;
+			coordinates[ 14 ] = b.z;
+			// Color
+			coordinates[ 15 ] = 0.7f;
+			coordinates[ 16 ] = 0.7f;
+			coordinates[ 17 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 18 ] = 1.0f;
+			coordinates[ 19 ] = 0.0f;
+			// Indice de Textura
+			coordinates[ 20 ] = 0.0f;
+			// Normal para la Luz
+			coordinates[ 21 ] = normal.x;
+			coordinates[ 22 ] = normal.y;
+			coordinates[ 23 ] = normal.z;
+
+			// Coordenadas
+			coordinates[ 24 ] = c.x;
+			coordinates[ 25 ] = c.y;
+			coordinates[ 26 ] = c.z;
+			// Color
+			coordinates[ 27 ] = 0.7f;
+			coordinates[ 28 ] = 0.7f;
+			coordinates[ 29 ] = 0.7f;
+			// Coordenadas de Textura
+			coordinates[ 30 ] = 0.5f;
+			coordinates[ 31 ] = 1.0f;
+			// Indice de Textura
+			coordinates[ 32 ] = 0.0f;
+			// Normal para la Luz
+			coordinates[ 33 ] = normal.x;
+			coordinates[ 34 ] = normal.y;
+			coordinates[ 35 ] = normal.z;
+
+		}
+
+		return coordinates;
+	}
+
 	// @return a new issoceles triangle from point a, angle at point and height h
 	static Triangle iso(Coordinate a, int degree, float h){
 		float rad = degree * M_PI / 180;
@@ -303,6 +633,8 @@ public:
 	float *GetVertices();
 	float *GetVerticesWithColors();
 	float *GetVerticesWithTextureCoords();
+	float *GetVerticesWithColorsAndTextureCoords();
+	float *GetVerticesWithColorsTexCoordsAndNormalLight();
 
 	inline const int GetNumTriangles() const{ return NumTriangles; }
 

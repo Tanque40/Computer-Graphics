@@ -45,6 +45,10 @@ void Shader::Setuniforms4f( const std::string &name, float v0, float v1, float v
     GLCall( glUniform4f(GetUniformLocation(name) , v0, v1, v2, v3 ) );
 }
 
+void Shader::SetuniformsVec3( const std::string &name, glm::vec3 value ){
+    GLCall( glUniform3fv( GetUniformLocation( name ), 1, &value[0] ) );
+}
+
 void Shader::SetUniformsMat4( const std::string &name, glm::mat4 uniform_1, int transpose ){
     if( transpose ){
 

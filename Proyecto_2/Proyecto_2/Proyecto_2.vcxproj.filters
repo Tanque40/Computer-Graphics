@@ -446,6 +446,12 @@
     <Image Include="res\textures\nether_brick.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\textures\amatista_block.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\Quartz_block.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">
@@ -1396,6 +1402,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Penrose.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

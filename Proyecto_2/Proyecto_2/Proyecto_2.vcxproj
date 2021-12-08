@@ -299,6 +299,8 @@
     <Image Include="res\textures\end_stone.png" />
     <Image Include="res\textures\mario.png" />
     <Image Include="res\textures\nether_brick.png" />
+    <Image Include="res\textures\obsidian_clarita.png" />
+    <Image Include="res\textures\purpur.png" />
     <Image Include="res\textures\Quartz_block.png" />
   </ItemGroup>
   <ItemGroup>

@@ -33,12 +33,12 @@ void scroll_callback( GLFWwindow *window, double xoffset, double yoffset );
 void processInput( GLFWwindow *window );
 
 // settings
-const unsigned int SCR_WIDTH = 1080;
-const unsigned int SCR_HEIGHT = 810;
+unsigned int SCR_WIDTH = 1080;
+unsigned int SCR_HEIGHT = 810;
 
 // Tilling Settings
 const float TILLING_DIAMETER = 1.0f;
-const float PARTITIONS = 5;
+const float PARTITIONS = 3;
 
 // camera
 Camera camera( glm::vec3( 0.0f, 0.0f, 3.0f ) );
@@ -100,7 +100,7 @@ int main( void ){
         int numIndices = p.GetNumTriangles() * 3;
 
         unsigned int *indices = new unsigned int[ numIndices ];
-        for( int i = 0; i < numIndices; i++ ){
+        for( int i = 0; i < numIndices; i++ ){ 
             indices[ i ] = i;
         }
 
@@ -153,12 +153,8 @@ int main( void ){
 
         // Variables
         // for projection
-        float xmin = -4.0f;
-        float xmax = 4.0f;
-        float ymin = -3.0f;
-        float ymax = 3.0f;
-        float zmin = -3.0f;
-        float zmax = 3.0f;
+        float near = 3.0;
+        float far = -100;
 
         //for Model
         glm::vec3 translate_Vector( 0.0f, 0.0f, 0.0f );
@@ -176,6 +172,11 @@ int main( void ){
             glm::vec3( 3.0f,  3.0f, -3.0f )
         };
 
+        // For animation
+        float explotion_scale = 1.0;
+        float magnitude = 6.0;
+        float time;
+        bool stop_animation = false;
         /* Loop until the user closes the window */
         while( !glfwWindowShouldClose( window ) ){
             // per - frame time logic
@@ -199,7 +200,7 @@ int main( void ){
             {               
 
                 // Projection
-                glm::mat4 projection = glm::perspective( glm::radians( camera.Zoom ), 1080.0f / 810.0f, 3.0f, -100.0f );
+                glm::mat4 projection = glm::perspective( glm::radians( camera.Zoom ), (float) SCR_WIDTH /  (float)SCR_HEIGHT, near, far );
 
 
                 // View
@@ -215,9 +216,27 @@ int main( void ){
                 shader.SetuniformsMat4f( "projection", projection );
                 shader.SetuniformsMat4f( "view", view );
                 shader.SetuniformsMat4f( "model", model );
-                shader.SetUniformFloat( "time", glfwGetTime());
                 shader.SetuniformsVec3( "viewPos", camera.Position );
+                
+                if( stop_animation ){
+                    time = 0;
+                } else{
+                    
+                    time = glfwGetTime();
 
+                }
+                if( magnitude > 0){
+
+                    shader.SetUniformFloat( "time", 3.14159265359 );
+                    shader.SetUniformFloat( "magnitude", magnitude );
+
+                    magnitude -= 0.015;
+
+                } else {
+
+                    shader.SetUniformFloat( "magnitude", 1 * explotion_scale );
+                    shader.SetUniformFloat( "time", time );
+                }
                 /*
                  * Here we set all the uniforms for the 5/6 types of lights we have. We have to set them manually and index
                  * the proper PointLight struct in the array to set each uniform variable. This can be done more code-friendly
@@ -293,6 +312,7 @@ int main( void ){
                 ImGui::TextWrapped( "\nPresiona I para la visualizacon de wireframe\n" );
                 ImGui::TextWrapped( "\nPresiona O para la visualizacion con relleno\n" );
                 ImGui::TextWrapped( "\nPresiona P para la visualizacion de los puntos que conforman\n" );
+                ImGui::TextWrapped( "\nSi se desplaza a la parte de atras de la teslacion prodra ver como se ve el efecto de la luz atraves de las texturas ya que estas son png con un poco de transparencia que nos permite ver el efecto traslucido de las mismas\n" );
                 ImGui::TextWrapped( "\nEn este menu se pueden controlar algunos aspectos generales del proyecto como el uso de proyeccion y modelo.\n" );
                 ImGui::TextWrapped( "\nAl igual que manejaremos la direcciones de la luz y la ubicacion de la misma.\n" );
 
@@ -341,25 +361,30 @@ int main( void ){
 
                 if( ImGui::CollapsingHeader( "Modelo" ) ){
                     // translate
-                    ImGui::SliderFloat3( "Vector de Transacion: ", &translate_Vector.x, xmin, xmax );
+                    ImGui::SliderFloat3( "Vector de Transacion: ", &translate_Vector.x, -10.0f, 10.0f );
 
                     //rotate
                     ImGui::SliderAngle( "Angulo de rotacion", &rotate_angle );
                     ImGui::SliderFloat3( "Vector de Rotacion", &rotate_Vector.x, 0.0f, 1.0f);
                     
                     //scale
-                    ImGui::SliderFloat3( "Escalado", &scale_Vector.x, xmin, xmax );
+                    ImGui::SliderFloat3( "Escalado", &scale_Vector.x, -10.0f, 10.0f );
 
                 }
 
                 if( ImGui::CollapsingHeader( "Proyeccion" ) ){
                     
-                    ImGui::SliderFloat( "X_Min", &xmin, -10.0f, 0.0f );
-                    ImGui::SliderFloat( "X_Max", &xmax, 0.0f, 10.0f );
-                    ImGui::SliderFloat( "Y_Min", &ymin, -10.0f, 0.0f );
-                    ImGui::SliderFloat( "Y_Max", &ymax, 0.0f, 10.0f );
-                    ImGui::SliderFloat( "Z_Min", &zmin, -10.0f, 0.0f );
-                    ImGui::SliderFloat( "Z_Max", &zmax, 0.0f, 10.0f );
+                    ImGui::SliderFloat( "near", &near, -10.0f, 25.0f );
+                    ImGui::SliderFloat( "far", &far, 30.0f, -150.0f );
+                    ImGui::SliderFloat( "angulo o zoom", &camera.Zoom, 0.0, 50.0 );
+
+                }
+
+                if( ImGui::CollapsingHeader( "Animacion" ) ){
+
+                    ImGui::Checkbox( "Detener animacion", &stop_animation );
+                    ImGui::TextWrapped( "Aumentar el tamaño de la explocion en: " );
+                    ImGui::InputFloat( "Escala:", &explotion_scale );
 
                 }
 
@@ -430,6 +455,8 @@ void processInput( GLFWwindow *window ){
 void framebuffer_size_callback( GLFWwindow *window, int width, int height ){
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
+    SCR_WIDTH = width;
+    SCR_HEIGHT = height;
     glViewport( 0, 0, width, height );
 }
 

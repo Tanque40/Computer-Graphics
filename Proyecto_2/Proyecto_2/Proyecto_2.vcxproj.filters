@@ -452,6 +452,12 @@
     <Image Include="res\textures\Quartz_block.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="res\textures\obsidian_clarita.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\textures\purpur.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\IndexBuffer.cpp">
